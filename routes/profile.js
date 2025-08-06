@@ -5,7 +5,7 @@ import createUser from "../middleware/createUser.js";
 const router=Router();
 router.get('/api/profile',createUser,(req,res)=>{
   const user=req.user;
-  const token=jwt.sign({id:user.id,name:user.name,email:user.email,picture:user.picture},process.env.JWT_SECRET,{expiresIn:'1h'});
+  const token=jwt.sign({id:user.id},process.env.JWT_SECRET,{expiresIn:'1h'});
   res.cookie('auth_token',token,{
     httpOnly:true,
     secure:false,//true en prod
