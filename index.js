@@ -6,7 +6,7 @@ import authenticationRoute from './routes/auth.js';
 import profileRoute from './routes/profile.js';
 import redirectRoute from './routes/redirect.js';
 import userRoute from './routes/user.js';
-
+import mongoose from 'mongoose';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
 import { config } from "dotenv";
 import cors from 'cors';
@@ -26,6 +26,11 @@ app.use(cors({
   credentials:true
 }));
 
+mongoose.connect('mongodb://localhost:27017/blog_backend')
+.then(()=>console.log('Sucessfully connected to the database'))
+.catch(err=>{
+  console.log('An error occured when connecting to the database',err)
+});
 app.use(session({
   secret:process.env.SESSION_SECRET,
   saveUninitialized:true,
@@ -54,5 +59,6 @@ app.use(authenticationRoute);
 app.use(profileRoute);
 app.use(redirectRoute);
 app.use(userRoute);
+
 const PORT=process.env.PORT || 3000;
 app.listen(PORT, ()=>console.log(`App is running on port ${PORT}`));

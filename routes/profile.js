@@ -1,9 +1,9 @@
 import { Router } from "express";
 import jwt from 'jsonwebtoken';
+import createUser from "../middleware/createUser.js";
 
 const router=Router();
-router.get('/api/profile',(req,res)=>{
-  if(!req.isAuthenticated()) return res.redirect('/api/redirect');
+router.get('/api/profile',createUser,(req,res)=>{
   const user=req.user;
   const token=jwt.sign({id:user.id,name:user.name,email:user.email,picture:user.picture},process.env.JWT_SECRET,{expiresIn:'1h'});
   res.cookie('auth_token',token,{
