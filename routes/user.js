@@ -17,11 +17,16 @@ router.get('/api/user',(req,res)=>{
 });
 
 router.get('/api/user/avatar',async (req,res)=>{
-  const url=req.query.url;
-  const response=await fetch(url);
-  const buffer=await response.arrayBuffer();
-  res.setHeader('Content-Type','image/jpeg');
-  res.send(Buffer.from(buffer));
+  try{
+    const url=req.query.url;
+    const response=await fetch(url);
+    const buffer=await response.arrayBuffer();
+    res.setHeader('Content-Type','image/jpeg');
+    res.send(Buffer.from(buffer));
+  }catch(err){
+    console.log(err);
+    res.send(null);
+  }
 });
 
 router.post('/api/user',async (req,res)=>{
@@ -29,5 +34,17 @@ router.post('/api/user',async (req,res)=>{
   const foundUser=await User.findOne({id:id});
   if(!foundUser) return res.status(404).send({message:'No user found'});
   return res.status(200).send(foundUser);
-})
+});
+
+router.patch('/api/user/updateinfos',async (req,res)=>{
+  const data=req.body;
+  try{
+    const updatedUser=await User.findOneAndUpdate({id:data.id},data,{new:true,runValidators:true});
+    if(!updatedUser) throw new Error('Error on update');
+    res.status(200).send({updated:true,user:updatedUser});
+  }catch(err){
+    console.log(err);
+    res.status(400).send({updated:false,message:`An error occured when updating the user ${data.id}`})
+  }
+});
 export default router;
