@@ -7,6 +7,7 @@ import profileRoute from './routes/profile.js';
 import redirectRoute from './routes/redirect.js';
 import userRoute from './routes/user.js';
 import adminArticleRoute from './routes/admin/article.js';
+import articleRoute from './routes/article.js';
 import mongoose from 'mongoose';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
 import { config } from "dotenv";
@@ -61,6 +62,6 @@ app.use(profileRoute);
 app.use(redirectRoute);
 app.use(userRoute);
 app.use(adminArticleRoute);
-
+app.use(articleRoute);
 const PORT=process.env.PORT || 3000;
 app.listen(PORT, ()=>console.log(`App is running on port ${PORT}`));
