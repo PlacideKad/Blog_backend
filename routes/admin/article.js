@@ -11,11 +11,10 @@ router.post('/api/admin/article',async (req,res)=>{
     const newArticle=new Article(body);
     const savedArticle= await newArticle.save();
     if(!savedArticle) throw new Error('error while creating a new article ') ;
-    return res.status(201).send(savedArticle);
+    return res.status(201).send({success:true});
   }catch(err){
     console.log(err);
     return res.status(400).send({message:err})
   }
-  res.send({message:'connected',data:body});
 });
 export default router
