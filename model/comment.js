@@ -14,10 +14,15 @@ export const commentSchema=new Schema({
     ref:'user',
     required:true
   },
-  article:{
+  parent:{
     type:Schema.Types.ObjectId,
-    ref:'article',
-    required:true
+    required:true,
+    refPath:'parentModel',
+  },
+  parentModel:{
+    type:String,
+    required:true,
+    enum:['article','comment']
   }
 },{strict:true,timestamps:true});
 
