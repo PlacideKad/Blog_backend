@@ -12,7 +12,7 @@ router.post('/api/comment',async (req,res)=>{
     const newComment=new Comment({author,parent,content,parentModel});
     const savedComment=await newComment.save();
     if(!savedComment) throw new Error('Error occured when creating a new comment');
-    return res.status(201).send({savedComment});
+    return res.sendStatus(201);
 
   }catch(err){
     console.log(err);

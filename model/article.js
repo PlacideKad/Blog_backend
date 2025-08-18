@@ -40,10 +40,10 @@ const articleSchema=new Schema({
     }],
   },
   read:{
-    type:Number,
-    min:0,
-    default:0,
-    required:true,
+    type:[{
+      type:Schema.Types.ObjectId,
+      refer:'user'
+    }],
   },
 },{strict:true,timestamps:true});
 

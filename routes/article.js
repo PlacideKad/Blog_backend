@@ -20,10 +20,17 @@ router.get('/api/articles',async (req,res)=>{
   }
 });
 
-router.get('/api/articles/:id',async (req,res)=>{  
+router.post('/api/articles/:id',async (req,res)=>{  
   try{
     const id=new Types.ObjectId(`${req.params.id}`);
-    const article=await Article.findById(id);
+    let article=await Article.findById(id);
+    if(req.body && Object.keys(req.body).length!==0){
+      const user_id=new Types.ObjectId(`${req.body.user_id}`);
+      let read=article.read || [];
+      if(!read.some(id=>id.equals(user_id))){
+        article=await Article.findByIdAndUpdate(id,{$push:{read:user_id}},{runValidators:true,new:true})
+      }
+    }
     if(!article) throw new Error('No article found with this id');
     const comments_=await Comment.find({$and:[
       {parent:id},
@@ -47,11 +54,16 @@ router.post('/api/articles/:id/like',async (req,res)=>{
     const user_id=new Types.ObjectId(`${req.body.id}`);
     const article_id=new Types.ObjectId(`${req.params.id}`);
     const {likes}=await Article.findById(article_id,{likes:1,_id:0},{lean:true});
-    const updatedArticle=likes.some(id=>id.equals(user_id))
-    ?await Article.findByIdAndUpdate(article_id,{$pull:{likes:user_id}},{runValidators:true,new:true})
-    :await Article.findByIdAndUpdate(article_id,{$push:{likes:user_id}},{runValidators:true,new:true});
-    if(!updatedArticle) throw new Error('Error occured when liking an article ');
-    return res.send({updatedArticle});
+    let updatedArticle=null;
+    if(likes.some(id=>id.equals(user_id))){
+      updatedArticle=await Article.findByIdAndUpdate(article_id,{$pull:{likes:user_id}},{runValidators:true,new:true});
+      if(!updatedArticle) throw new Error('Error occured when liking an article ');
+      res.status(200).send({userLiked:false,likes:updatedArticle.likes});
+    }else{
+      updatedArticle=await Article.findByIdAndUpdate(article_id,{$push:{likes:user_id}},{runValidators:true,new:true});
+      if(!updatedArticle) throw new Error('Error occured when liking an article ');
+      res.status(201).send({userLiked:true,likes:updatedArticle.likes});
+    }
   }catch(err){
     console.log(err);
     res.sendStatus(400);
