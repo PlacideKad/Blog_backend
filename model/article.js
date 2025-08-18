@@ -34,10 +34,10 @@ const articleSchema=new Schema({
     type:[linkSchema],
   },
   likes:{
-    type:Number,
-    min:0,
-    default:0,
-    required:true,
+    type:[{
+      type:Schema.Types.ObjectId,
+      refer:'user'
+    }],
   },
   read:{
     type:Number,

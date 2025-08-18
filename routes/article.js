@@ -41,5 +41,20 @@ router.get('/api/articles/:id',async (req,res)=>{
     console.log(err);
     res.status(404).send({found:false,message:err})
   }
+});
+router.post('/api/articles/:id/like',async (req,res)=>{
+  try{
+    const user_id=new Types.ObjectId(`${req.body.id}`);
+    const article_id=new Types.ObjectId(`${req.params.id}`);
+    const {likes}=await Article.findById(article_id,{likes:1,_id:0},{lean:true});
+    const updatedArticle=likes.some(id=>id.equals(user_id))
+    ?await Article.findByIdAndUpdate(article_id,{$pull:{likes:user_id}},{runValidators:true,new:true})
+    :await Article.findByIdAndUpdate(article_id,{$push:{likes:user_id}},{runValidators:true,new:true});
+    if(!updatedArticle) throw new Error('Error occured when liking an article ');
+    return res.send({updatedArticle});
+  }catch(err){
+    console.log(err);
+    res.sendStatus(400);
+  }
 })
 export default router;
