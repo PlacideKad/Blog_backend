@@ -20,6 +20,16 @@ router.get('/api/articles',async (req,res)=>{
   }
 });
 
+router.get('/api/articles/titles',async(req,res)=>{
+  try{
+    const titles=await Article.find({},{_id:1,title:1},{lean:true}).sort({createdAt:-1}).limit(3);
+    res.status(200).send({titles});
+  }catch(err){
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
 router.post('/api/articles/:id',async (req,res)=>{  
   try{
     const id=new Types.ObjectId(`${req.params.id}`);
@@ -49,6 +59,7 @@ router.post('/api/articles/:id',async (req,res)=>{
     res.status(404).send({found:false,message:err})
   }
 });
+
 router.post('/api/articles/:id/like',async (req,res)=>{
   try{
     const user_id=new Types.ObjectId(`${req.body.id}`);
@@ -68,5 +79,5 @@ router.post('/api/articles/:id/like',async (req,res)=>{
     console.log(err);
     res.sendStatus(400);
   }
-})
+});
 export default router;
