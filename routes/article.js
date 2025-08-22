@@ -6,7 +6,6 @@ import { User } from '../model/user.js';
 
 const router= Router();
 
-
 router.get('/api/articles',async (req,res)=>{
   try{
     const articles=await Article.find();
