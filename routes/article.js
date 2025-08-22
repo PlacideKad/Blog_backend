@@ -6,8 +6,6 @@ import { User } from '../model/user.js';
 
 const router= Router();
 
-//penser a la pagination. Chaque page ne poura conteninr que 9 articles.
-//Penser a rajouter des filtres
 
 router.get('/api/articles',async (req,res)=>{
   try{
@@ -45,12 +43,12 @@ router.post('/api/articles/:id',async (req,res)=>{
     const comments_=await Comment.find({$and:[
       {parent:id},
       {parentModel:'article'}
-    ]},{content:1,author:1,createdAt:1,updatedAt:1},{lean:true});//penser a paginer les commentaires
+    ]},{content:1,author:1,createdAt:1,updatedAt:1},{lean:true});
     let comments=[];
     await(async()=>{
       for(let comment of comments_){
-        const {picture}=await User.findById(comment.author,{picture:1,_id:0});
-        comments.push({...comment,picture});
+        const author_infos=await User.findById(comment.author,{picture:1,_id:0,given_name:1,family_name:1});
+        comments.push({...comment,author_infos});
       }
     })();
     return res.status(200).send({found:true,message:'Article found successfully',article,comments})

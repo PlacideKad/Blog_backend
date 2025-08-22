@@ -4,7 +4,7 @@ export const commentSchema=new Schema({
   content:{
     type:String,
     validate:{
-      validator:(value)=>/^.{3,}$/.test(value),
+      validator:(value)=>/^[.\s\S]{3,}$/.test(value),
       message:'The given string is not a valid article summary'
     },
     required:true
