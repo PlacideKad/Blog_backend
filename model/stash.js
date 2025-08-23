@@ -28,7 +28,8 @@ const stashSchema=new Schema({
     ref:'article'
   },
   cover:{
-    type:linkSchema
+    type:linkSchema,
+    default:{link:"https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1973&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
   },
 },{strict:true,timestamps:true});
 

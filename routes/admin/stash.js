@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { Stash } from "../../model/stash.js";
 import { Types } from "mongoose";
-
 const router=Router();
 
 router.post('/api/admin/stash',async (req,res)=>{
@@ -45,6 +44,17 @@ router.get('/api/admin/stashes/:id',async(req,res)=>{
   }catch(err){
     console.log(err);
     res.status(400).send({error:err});
+  }
+});
+router.delete('/api/admin/stashes',async (req,res)=>{
+  const id=new Types.ObjectId(`${req.body.id}`);
+  try{
+    const deletedStash=await Stash.findByIdAndDelete(id);
+    if(!deletedStash) throw new Error('Error when deleting a stashed work');
+    return res.status(200).send({success:true});
+  }catch(err){
+    console.log(err);
+    return res.status(500).send({error:err});
   }
 });
 
