@@ -1,4 +1,4 @@
-import {model,Schema} from 'mongoose';
+import mongoose, {model,Schema} from 'mongoose';
 import { linkSchema } from './link.js';
 
 const stashSchema=new Schema({
@@ -22,6 +22,10 @@ const stashSchema=new Schema({
       validator:(value)=>/^.{3,}$/.test(value),
       message:'The given string is not a valid article content'
     }
+  },
+  from_article:{
+    type:Schema.Types.ObjectId,
+    ref:'article'
   },
   cover:{
     type:linkSchema

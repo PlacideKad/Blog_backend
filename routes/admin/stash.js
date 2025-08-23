@@ -9,11 +9,12 @@ router.post('/api/admin/stash',async (req,res)=>{
   try{
     if(body.stash_id){
       const id=new Types.ObjectId(`${body.stash_id}`);
-      const updatedStash= await Stash.findByIdAndUpdate(id,{...body,stash_id:undefined});
+      const updatedStash= await Stash.findByIdAndUpdate(id,{...body,stash_id:undefined},{runValidators:true});
       if(!updatedStash) throw new Error('Error when updating a stashed work');
       return res.status(200).send({success:true});
     }else{
-      const newStash=new Stash(body);
+      const id=body.article_id?new Types.ObjectId(`${body.article_id}`):null;
+      const newStash=body.article_id?new Stash({...body,article_id:undefined,from_article:id}):new Stash(body);
       const savedStash=await newStash.save();
       if(!savedStash) throw new Error('Error occured when creating a new stash');
       return res.status(201).send({success:true});
