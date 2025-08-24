@@ -42,6 +42,10 @@ const userSchema=new Schema({
     type:String,
     required:true,
     unique:true,
+  },
+  blocked:{
+    type:Boolean,
+    default:false,
   }
 },{strict:true,timestamps:true});
 
