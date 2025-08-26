@@ -6,13 +6,26 @@ const router=Router();
 // penser a rajouter un middleware d'authentification de l'admin
 //penser a paginer le resultat
 router.get('/api/admin/users',async (req,res)=>{
+  let {search}=req.query;
+  if(search) search=search.split(' ');
+  console.log(search);
   try{
     const foundUsers=await User.find({},{id:0});
     if(!foundUsers) throw new Error('Error while fetching the users');
-    res.status(200).send({foundUsers});
+
+    if(!search) return  res.status(200).send({foundUsers});
+    const data=foundUsers.filter(user=>(
+      search.some(filter=>(
+        user.given_name.toLowerCase().includes(filter.toLowerCase()) ||
+        user.family_name.toLowerCase().includes(filter.toLowerCase()) ||
+        user.email.toLowerCase().includes(filter.toLowerCase())
+      ))
+    ));
+    return res.status(200).send({data});
+    
   }catch(err){
     console.log(err);
-    res.status(500).send({error:err});
+    return res.status(500).send({error:err});
   }
 });
 
