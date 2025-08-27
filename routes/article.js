@@ -10,16 +10,24 @@ router.get('/api/articles',async (req,res)=>{
   const limit=parseInt(req.query.limit) || 6;
   const page=parseInt(req.query.page) || 1;
   const skip=(page-1)*limit;
+  let {search}=req.query;
+  let regex=null;
+  if(search){
+    search=search.split(' ');
+    regex=new RegExp(`\\b(${search.join("|")})\\b`,"i");
+  } 
+
   try{
-    const nb_articles=await Article.countDocuments();
-    const nb_pages=Math.ceil(nb_articles/limit);
-    const articles=await Article.find().limit(limit).skip(skip);
-    if (!articles) throw new Error('Error occured when retrieving articles from the database');
-    return res.send({articles,nb_pages});
+      const nb_articles=await Article.countDocuments(regex?{title:regex}:{});
+      const nb_pages=Math.ceil(nb_articles/limit);
+      const articles=regex?await Article.find({title:regex}):await Article.find().limit(limit).skip(skip);
+      if (!articles) throw new Error('Error occured when retrieving articles from the database');
+      return regex?res.send({data:articles}):res.send({articles,nb_pages});
   }catch(err){
     console.log(err);
     res.status(500).send({error:err});
   }
+  res.sendStatus(200);
 });
 
 router.get('/api/articles/titles',async(req,res)=>{

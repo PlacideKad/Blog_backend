@@ -7,21 +7,28 @@ const router=Router();
 //penser a paginer le resultat
 router.get('/api/admin/users',async (req,res)=>{
   let {search}=req.query;
-  if(search) search=search.split(' ');
-  console.log(search);
-  try{
-    const foundUsers=await User.find({},{id:0});
-    if(!foundUsers) throw new Error('Error while fetching the users');
+  let regex=null;
 
-    if(!search) return  res.status(200).send({foundUsers});
-    const data=foundUsers.filter(user=>(
-      search.some(filter=>(
-        user.given_name.toLowerCase().includes(filter.toLowerCase()) ||
-        user.family_name.toLowerCase().includes(filter.toLowerCase()) ||
-        user.email.toLowerCase().includes(filter.toLowerCase())
-      ))
-    ));
-    return res.status(200).send({data});
+  if(search){
+    search=search.split(' ');
+    regex=new RegExp(`\\b(${search.join("|")})\\b`,"i");
+  } 
+  try{
+    const foundUsers=await User.find(regex?{$or:[
+      {given_name:regex},
+      {family_name:regex},
+      {email:regex}
+    ]}:{},{id:0});
+    if(!foundUsers) throw new Error('Error while fetching the users');
+    return regex? res.status(200).send({data:foundUsers}): res.status(200).send({foundUsers});
+    // const data=foundUsers.filter(user=>(
+    //   search.some(filter=>(
+    //     user.given_name.toLowerCase().includes(filter.toLowerCase()) ||
+    //     user.family_name.toLowerCase().includes(filter.toLowerCase()) ||
+    //     user.email.toLowerCase().includes(filter.toLowerCase())
+    //   ))
+    // ));
+    // return res.status(200).send({data});
     
   }catch(err){
     console.log(err);
