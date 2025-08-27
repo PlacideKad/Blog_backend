@@ -7,10 +7,15 @@ import { User } from '../model/user.js';
 const router= Router();
 
 router.get('/api/articles',async (req,res)=>{
+  const limit=parseInt(req.query.limit) || 6;
+  const page=parseInt(req.query.page) || 1;
+  const skip=(page-1)*limit;
   try{
-    const articles=await Article.find();
+    const nb_articles=await Article.countDocuments();
+    const nb_pages=Math.ceil(nb_articles/limit);
+    const articles=await Article.find().limit(limit).skip(skip);
     if (!articles) throw new Error('Error occured when retrieving articles from the database');
-    return res.send(articles);
+    return res.send({articles,nb_pages});
   }catch(err){
     console.log(err);
     res.status(500).send({error:err});
