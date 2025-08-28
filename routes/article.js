@@ -11,7 +11,10 @@ router.get('/api/articles',async (req,res)=>{
   const page=parseInt(req.query.page) || 1;
   const skip=(page-1)*limit;
   let {search, exact }=req.query;
-
+  const sort_by=req.query.sort_by || 'createdAt';
+  const order=parseInt(req.query.order) || 1;
+  let sortOptions={};
+  sortOptions[sort_by]=order;
   let regex=null;
   if(search){
     exact=parseInt(exact);
@@ -25,13 +28,13 @@ router.get('/api/articles',async (req,res)=>{
     if(exact===1){
       const foundArticle=await Article.findOne({title:regex});
       if(!foundArticle) return res.send({succes:false,data:null});
-      return res.send({success:true,data:[foundArticle]})
+      return res.send({success:true,foundData:[foundArticle]})
     }
     const nb_articles=await Article.countDocuments(regex?{title:regex}:{});
     const nb_pages=Math.ceil(nb_articles/limit);
-    const articles=regex?await Article.find({title:regex}):await Article.find().limit(limit).skip(skip);
+    const articles=regex?await Article.find({title:regex}).sort(sortOptions):await Article.find().limit(limit).skip(skip).sort(sortOptions);
     if (!articles) throw new Error('Error occured when retrieving articles from the database');
-    return regex?res.send({data:articles}):res.send({articles,nb_pages});
+    return regex?res.send({foundData:articles,success:true}):res.send({articles,nb_pages,success:true});
   }catch(err){
     console.log(err);
     res.status(500).send({error:err});
