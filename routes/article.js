@@ -65,10 +65,11 @@ router.post('/api/articles/:id',async (req,res)=>{
     let article=await Article.findById(id);
     if(req.body && Object.keys(req.body).length!==0){
       const user_id=new Types.ObjectId(`${req.body.user_id}`);
-      let read=article.read || [];
-      if(!read.some(id=>id.equals(user_id))){
-        article=await Article.findByIdAndUpdate(id,{$push:{read:user_id}},{runValidators:true,new:true})
-      }
+      article = await Article.findByIdAndUpdate(
+        id,
+        { $addToSet: { read: user_id } }, 
+        { runValidators: true, new: true }
+      );
     }
     if(!article) throw new Error('No article found with this id');
     const comments_=await Comment.find({$and:[
