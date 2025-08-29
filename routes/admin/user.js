@@ -6,29 +6,23 @@ const router=Router();
 // penser a rajouter un middleware d'authentification de l'admin
 //penser a paginer le resultat
 router.get('/api/admin/users',async (req,res)=>{
-  let {search}=req.query;
+  console.log(req.url);
+  let {search,sort_by}=req.query;
+  let order=parseInt(req.query.order);
+  let exact=parseInt(req.query.exact);
   let regex=null;
-
   if(search){
     search=search.split(' ');
-    regex=new RegExp(`\\b(${search.join("|")})\\b`,"i");
+    regex=exact===1?new RegExp(`^${search}$`,"i"):new RegExp(`(${search.join("|")})`,"i");
   } 
   try{
     const foundUsers=await User.find(regex?{$or:[
       {given_name:regex},
       {family_name:regex},
       {email:regex}
-    ]}:{},{id:0});
+    ]}:{},{id:0}).sort({[sort_by]:order});
     if(!foundUsers) throw new Error('Error while fetching the users');
-    return regex? res.status(200).send({data:foundUsers}): res.status(200).send({foundUsers});
-    // const data=foundUsers.filter(user=>(
-    //   search.some(filter=>(
-    //     user.given_name.toLowerCase().includes(filter.toLowerCase()) ||
-    //     user.family_name.toLowerCase().includes(filter.toLowerCase()) ||
-    //     user.email.toLowerCase().includes(filter.toLowerCase())
-    //   ))
-    // ));
-    // return res.status(200).send({data});
+    return regex? res.status(200).send({data:foundUsers}): res.status(200).send({data:foundUsers});
     
   }catch(err){
     console.log(err);

@@ -31,7 +31,7 @@ router.get('/api/articles',async (req,res)=>{
     const nb_articles=await Article.countDocuments(regex?{title:regex}:{});
     const nb_pages=Math.ceil(nb_articles/limit);
     const articles=regex?
-    await Article.find({title:regex}).sort(sortOptions):
+    await Article.find({title:regex}).sort({[sort_by]:order}):
     (sort_by==="createdAt"||sort_by==="title")?
     await Article.find().limit(limit).skip(skip).sort({[sort_by]:order}):
     (sort_by==='read'|| sort_by==="likes")?
