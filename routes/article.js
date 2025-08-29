@@ -13,8 +13,6 @@ router.get('/api/articles',async (req,res)=>{
   let {search, exact }=req.query;
   const sort_by=req.query.sort_by || 'createdAt';
   const order=parseInt(req.query.order) || 1;
-  let sortOptions={};
-  sortOptions[sort_by]=order;
   let regex=null;
   if(search){
     exact=parseInt(exact);
@@ -32,14 +30,23 @@ router.get('/api/articles',async (req,res)=>{
     }
     const nb_articles=await Article.countDocuments(regex?{title:regex}:{});
     const nb_pages=Math.ceil(nb_articles/limit);
-    const articles=regex?await Article.find({title:regex}).sort(sortOptions):await Article.find().limit(limit).skip(skip).sort(sortOptions);
+    const articles=regex?
+    await Article.find({title:regex}).sort(sortOptions):
+    (sort_by==="createdAt"||sort_by==="title")?
+    await Article.find().limit(limit).skip(skip).sort({[sort_by]:order}):
+    (sort_by==='read'|| sort_by==="likes")?
+    await Article.aggregate([
+      {$addFields:{arrayLength:{$size:`$${sort_by}`}}},
+      {$sort:{arrayLength:order}},
+      {$limit:limit},
+      {$skip:skip}
+    ]):null;
     if (!articles) throw new Error('Error occured when retrieving articles from the database');
     return regex?res.send({foundData:articles,success:true}):res.send({articles,nb_pages,success:true});
   }catch(err){
     console.log(err);
-    res.status(500).send({error:err});
+    res.status(500).send({error:err,success:false});
   }
-  res.sendStatus(200);
 });
 
 router.get('/api/articles/titles',async(req,res)=>{
