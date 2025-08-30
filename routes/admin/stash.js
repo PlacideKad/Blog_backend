@@ -25,10 +25,34 @@ router.post('/api/admin/stash',async (req,res)=>{
 });
 
 router.get('/api/admin/stashes',async (req,res)=>{
+  const limit=parseInt(req.query.limit) || 6;
+  const page=parseInt(req.query.page) || 1;
+  const skip=(page-1)*limit;
+  let {search, exact }=req.query;
+  const sort_by=req.query.sort_by || 'createdAt';
+  const order=parseInt(req.query.order) || 1;
+  let regex=null;
+  if(search){
+    exact=parseInt(exact);
+    if(exact===0){
+      search=search.split(' ');
+      regex=new RegExp(`\\b(${search.join("|")})\\b`,"i");
+    }else regex=new RegExp(`^${search}$`,"i");
+  } 
   try{
-    const stashes=await Stash.find();
+    if(exact===1){
+      const foundStash=await Stash.findOne({title:regex});
+      if(!foundStash) return res.send({succes:false,data:null});
+      return res.send({success:true,foundData:[foundStash]})
+    }
+    const nb_documents=await Stash.countDocuments(regex?{title:regex}:{});
+    const nb_pages=Math.ceil(nb_documents/limit);
+    const stashes=regex?
+    await Stash.find({title:regex}).sort({[sort_by]:order}):
+    (sort_by==="createdAt"||sort_by==="title")?
+    await Stash.find().limit(limit).skip(skip).sort({[sort_by]:order}):null;
     if (!stashes) throw new Error('Error occured when retrieving stashes from the database');
-    return res.send(stashes);
+    return regex?res.send({foundData:stashes,success:true}):res.send({stashes,nb_pages,success:true});
   }catch(err){
     console.log(err);
     res.status(500).send({error:err});
