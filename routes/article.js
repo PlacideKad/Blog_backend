@@ -38,8 +38,8 @@ router.get('/api/articles',async (req,res)=>{
     await Article.aggregate([
       {$addFields:{arrayLength:{$size:`$${sort_by}`}}},
       {$sort:{arrayLength:order}},
-      {$limit:limit},
-      {$skip:skip}
+      {$skip:skip},
+      {$limit:limit}
     ]):null;
     if (!articles) throw new Error('Error occured when retrieving articles from the database');
     return regex?res.send({foundData:articles,success:true}):res.send({articles,nb_pages,success:true});
