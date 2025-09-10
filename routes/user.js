@@ -1,6 +1,7 @@
 import { Router } from "express";
 import jwt from 'jsonwebtoken';
 import {User} from '../model/user.js';
+import { Types } from "mongoose";
 
 const router=Router();
 router.get('/api/user',(req,res)=>{
@@ -38,8 +39,9 @@ router.post('/api/user',async (req,res)=>{
 
 router.patch('/api/user/updateinfos',async (req,res)=>{
   const data=req.body;
+  const id=new Types.ObjectId(`${req.body.id}`);
   try{
-    const updatedUser=await User.findOneAndUpdate({id:data.id},data,{new:true,runValidators:true});
+    const updatedUser=await User.findByIdAndUpdate(id,{...data,id:undefined},{new:true,runValidators:true});
     if(!updatedUser) throw new Error('Error on update');
     res.status(200).send({updated:true,user:updatedUser});
   }catch(err){
