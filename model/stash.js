@@ -3,25 +3,13 @@ import { linkSchema } from './link.js';
 
 const stashSchema=new Schema({
   title:{
-    type:String,
-    validate:{
-      validator:(value)=>/^.{3,}$/.test(value),
-      message:'The given string is not a valid article title'
-    }
+    type:String
   },
   summary:{
-    type:String,
-    validate:{
-      validator:(value)=>/^.{3,}$/.test(value),
-      message:'The given string is not a valid article summary'
-    }
+    type:String
   },
   content:{
-    type:String,
-    validate:{
-      validator:(value)=>/^.{3,}$/.test(value),
-      message:'The given string is not a valid article content'
-    }
+    type:String
   },
   from_article:{
     type:Schema.Types.ObjectId,

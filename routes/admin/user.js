@@ -6,7 +6,6 @@ const router=Router();
 // penser a rajouter un middleware d'authentification de l'admin
 //penser a paginer le resultat
 router.get('/api/admin/users',async (req,res)=>{
-  console.log(req.url);
   let {search,sort_by}=req.query;
   let order=parseInt(req.query.order);
   let exact=parseInt(req.query.exact);
