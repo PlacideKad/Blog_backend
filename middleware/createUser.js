@@ -6,7 +6,7 @@ const createUser=async (req,res,next)=>{
     const user=req.user;
     const existingUser=await User.findOne({id:user.id},{name:1,},{lean:true});
     if(!existingUser){
-      const newUser=new User({id:user.id,email:user.email,given_name:user.given_name,family_name:user.family_name,picture:user.picture});
+      const newUser=new User({id:user.id,email:user.email,given_name:user.given_name,family_name:user.family_name,picture:'https://res.cloudinary.com/dmipesfyo/image/upload/c_fill,h_550,w_550/default_user_profile_picture'});
       await newUser.save();
     }
     next();

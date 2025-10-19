@@ -12,7 +12,7 @@ router.get('/api/profile',createUser,(req,res)=>{
     sameSite:'lax',
     maxAge:1000*60*60
   });
-  res.redirect('http://localhost:5173');
+  res.redirect(process.env.FRONTEND_HOME);
 });
 
 router.get('/api/logout',(req,res)=>{
