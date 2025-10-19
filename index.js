@@ -11,7 +11,7 @@ import articleRoute from './routes/article.js';
 import commentRoute from './routes/comment.js';
 import adminStashRoute from './routes/admin/stash.js';
 import adminUserRoute from './routes/admin/user.js';
-import removeCloudinaryRoute from './routes/cloudinary.js';
+import removeCloudinaryRoute from './routes/cloudinaryRequests.js';
 import mongoose from 'mongoose';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
 import { config } from "dotenv";
