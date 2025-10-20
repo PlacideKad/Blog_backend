@@ -17,18 +17,20 @@ router.get('/api/user',(req,res)=>{
   }
 });
 
-router.get('/api/user/avatar',async (req,res)=>{
-  try{
-    const url=req.query.url;
-    const response=await fetch(url);
-    const buffer=await response.arrayBuffer();
-    res.setHeader('Content-Type','image/jpeg');
-    res.send(Buffer.from(buffer));
-  }catch(err){
-    console.log(err);
-    res.send(null);
-  }
-});
+//as we are not using google pictures directly, this route won't be needed
+// router.get('/api/user/avatar',async (req,res)=>{
+//   try{
+//     const url=req.query.url;
+//     const response=await fetch(url);
+//     const buffer=await response.arrayBuffer();
+//     res.setHeader('Content-Type','image/jpeg');
+//     res.send(Buffer.from(buffer));
+//   }catch(err){
+//     console.log(err);
+//     res.send(null);
+//   }
+// });
+
 
 router.post('/api/user',async (req,res)=>{
   const {id}=req.body;
