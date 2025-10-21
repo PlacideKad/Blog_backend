@@ -2,7 +2,7 @@ import Router from 'express';
 import { Article } from '../../model/article.js';
 import { Stash } from '../../model/stash.js';
 import { Types } from 'mongoose';
-import { deleteComments } from '../../middleware/deleteUselessData.js';
+import { deleteCloudinaryCover, deleteComments } from '../../middleware/deleteUselessData.js';
 const router=Router();
 
 // Penser a ajouter un middleware de validation
@@ -55,16 +55,17 @@ router.get('/api/admin/articles/:id',async(req,res)=>{
     res.status(400).send({error:err});
   }
 });
-router.delete('/api/admin/articles',deleteComments,async (req,res)=>{
+router.delete('/api/admin/articles',deleteComments,async (req,res,next)=>{
   const id=new Types.ObjectId(`${req.body.id}`);
   try{
     const deletedArticle=await Article.findByIdAndDelete(id);
     if(!deletedArticle) throw new Error('Error when deleting a published article');
-    return res.status(200).send({success:true});
+    req.coverLinkToDelete=deletedArticle.cover.link;
+    next();
   }catch(err){
     console.log(err);
     return res.status(500).send({error:err});
   }
-});
+},deleteCloudinaryCover);
 
 export default router

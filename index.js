@@ -12,6 +12,7 @@ import commentRoute from './routes/comment.js';
 import adminStashRoute from './routes/admin/stash.js';
 import adminUserRoute from './routes/admin/user.js';
 import removeCloudinaryRoute from './routes/cloudinaryRequests.js';
+import {v2 as cloudinary} from 'cloudinary';
 import mongoose from 'mongoose';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
 import { config } from "dotenv";
@@ -60,6 +61,14 @@ passport.use(new GoogleStrategy({
 },(accessToken,refreshToken,profile,done)=>{
   return done(null,profile);
 }));
+
+// Cloudinary config
+
+cloudinary.config({
+  cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:process.env.CLOUDINARY_API_KEY,
+  api_secret:process.env.CLOUDINARY_API_SECRET
+});
 
 app.use(authenticationRoute);
 app.use(profileRoute);

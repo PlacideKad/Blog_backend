@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { Stash } from "../../model/stash.js";
 import { Types } from "mongoose";
+import { deleteCloudinaryCoversArray , deleteCloudinaryCover} from "../../middleware/deleteUselessData.js";
+
 const router=Router();
 
-router.post('/api/admin/stash',async (req,res)=>{
+router.post('/api/admin/stash',deleteCloudinaryCoversArray,async (req,res)=>{
   const {body}=req;
   try{
     if(body.stash_id){
@@ -70,16 +72,17 @@ router.get('/api/admin/stashes/:id',async(req,res)=>{
     res.status(400).send({error:err});
   }
 });
-router.delete('/api/admin/stashes',async (req,res)=>{
+router.delete('/api/admin/stashes',async (req,res,next)=>{
   const id=new Types.ObjectId(`${req.body.id}`);
   try{
     const deletedStash=await Stash.findByIdAndDelete(id);
     if(!deletedStash) throw new Error('Error when deleting a stashed work');
-    return res.status(200).send({success:true});
+    req.coverLinkToDelete=deletedStash.cover.link;
+    next();
   }catch(err){
     console.log(err);
     return res.status(500).send({error:err});
   }
-});
+}, deleteCloudinaryCover);
 
 export default router
