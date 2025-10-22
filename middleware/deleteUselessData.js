@@ -15,7 +15,6 @@ export const deleteComments=async (req,res,next)=>{
 }
 export const deleteCloudinaryCover=async(req,res)=>{
   const {coverLinkToDelete}=req;
-  console.log(coverLinkToDelete);
   const publicId=coverLinkToDelete.split('/')[coverLinkToDelete.split('/').length-1];
   console.log(publicId);
   try{
