@@ -16,7 +16,6 @@ export const deleteComments=async (req,res,next)=>{
 export const deleteCloudinaryCover=async(req,res)=>{
   const {coverLinkToDelete}=req;
   const publicId=coverLinkToDelete.split('/')[coverLinkToDelete.split('/').length-1];
-  console.log(publicId);
   try{
     await cloudinary.uploader.destroy(publicId,(error,result)=>{
       if(error) throw new Error('Error deleting item from cloudinary');
@@ -41,4 +40,23 @@ export const deleteCloudinaryCoversArray=async(req,res,next)=>{
       console.log(err);
     }
   }else next();
+}
+
+export const deleteAttachedFile=async (req,res,next)=>{
+  const {display_name_to_delete , from_edit}=req.body;
+  let {related_files}=req.body;
+  related_files=related_files.filter(file=>file.display_name!== display_name_to_delete);
+  try{
+    await cloudinary.uploader.destroy(display_name_to_delete,(error,result)=>{
+      if(error) throw new Error('Error deleting item from cloudinary:',error);
+      if(from_edit){
+        req.related_files=related_files;
+        next();
+      }else res.status(200).send({success:true,data:{related_files}});//that data will be usefull for the create article page. resJson.data.related_files
+    });
+
+  }catch(err){
+    console.log(err);
+    return res.status(500).send({success:false, message:err});
+  }
 }

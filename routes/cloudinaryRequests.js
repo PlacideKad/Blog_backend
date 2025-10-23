@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {v2 as cloudinary} from 'cloudinary';
 const router=Router();
-
+// this is the route used to remove client profile picture
 router.post('/api/remove_cloudinary',(req,res)=>{
   const publicId=req.body.publicId;
   try{

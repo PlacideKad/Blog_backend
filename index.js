@@ -12,6 +12,7 @@ import commentRoute from './routes/comment.js';
 import adminStashRoute from './routes/admin/stash.js';
 import adminUserRoute from './routes/admin/user.js';
 import removeCloudinaryRoute from './routes/cloudinaryRequests.js';
+import removeFiles from './routes/admin/removeAttachedFiles.js';
 import {v2 as cloudinary} from 'cloudinary';
 import mongoose from 'mongoose';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
@@ -80,6 +81,7 @@ app.use(commentRoute);
 app.use(adminStashRoute);
 app.use(adminUserRoute);
 app.use(removeCloudinaryRoute);
+app.use(removeFiles);
 
 const PORT=process.env.PORT || 3000;
 app.listen(PORT, ()=>console.log(`App is running on port ${PORT}`));
