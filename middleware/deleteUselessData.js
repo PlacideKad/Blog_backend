@@ -15,7 +15,7 @@ export const deleteComments=async (req,res,next)=>{
 }
 export const deleteCloudinaryCover=async(req,res)=>{
   const {coverLinkToDelete}=req;
-  const publicId=coverLinkToDelete.split('/')[coverLinkToDelete.split('/').length-1];
+  const publicId=coverLinkToDelete.split('/').pop();
   try{
     await cloudinary.uploader.destroy(publicId,(error,result)=>{
       if(error) throw new Error('Error deleting item from cloudinary');
@@ -38,11 +38,13 @@ export const deleteCloudinaryCoversArray=async(req,res,next)=>{
       next();
     }catch(err){
       console.log(err);
+      res.status(500).send({success:false,message:err});;
     }
   }else next();
 }
 
 export const deleteAttachedFile=async (req,res,next)=>{
+  // This middleware deletes one attached file when the user clicks on the x
   const {display_name_to_delete , from_edit}=req.body;
   let {related_files}=req.body;
   const resource_type_for_file_to_delete=related_files.find(file=>file.display_name===display_name_to_delete)?.resource_type;
@@ -59,5 +61,22 @@ export const deleteAttachedFile=async (req,res,next)=>{
   }catch(err){
     console.log(err);
     return res.status(500).send({success:false, message:err});
+  }
+}
+export const deleteRelatedFiles=async(req,res,next)=>{
+  // this middleware deletes all the related files of an article/stash when it is deleted
+  const {relatedFilesToDelete}=req;
+  try{
+    if(relatedFilesToDelete.length>0){
+      for(let file of relatedFilesToDelete){
+        await cloudinary.uploader.destroy(file?.display_name,(err,result)=>{
+          if(err) throw new Error('Error occured when deleting a file from Cloudinary:',err);
+        })
+      }
+    }
+    next();
+  }catch(err){
+    console.log(err);
+    res.status(500).send({success:false, message:err});
   }
 }

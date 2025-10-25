@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Stash } from "../../model/stash.js";
 import { Types } from "mongoose";
-import { deleteCloudinaryCoversArray , deleteCloudinaryCover} from "../../middleware/deleteUselessData.js";
+import { deleteCloudinaryCoversArray ,deleteRelatedFiles, deleteCloudinaryCover} from "../../middleware/deleteUselessData.js";
 
 const router=Router();
 
@@ -77,12 +77,13 @@ router.delete('/api/admin/stashes',async (req,res,next)=>{
   try{
     const deletedStash=await Stash.findByIdAndDelete(id);
     if(!deletedStash) throw new Error('Error when deleting a stashed work');
-    req.coverLinkToDelete=deletedStash.cover.link;
+    req.coverLinkToDelete=deletedStash?.cover?.link;
+    req.relatedFilesToDelete=deletedStash?.related_files;
     next();
   }catch(err){
     console.log(err);
     return res.status(500).send({error:err});
   }
-}, deleteCloudinaryCover);
+}, deleteRelatedFiles,deleteCloudinaryCover);
 
 export default router
