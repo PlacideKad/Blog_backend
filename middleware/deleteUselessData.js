@@ -45,9 +45,10 @@ export const deleteCloudinaryCoversArray=async(req,res,next)=>{
 export const deleteAttachedFile=async (req,res,next)=>{
   const {display_name_to_delete , from_edit}=req.body;
   let {related_files}=req.body;
+  const resource_type_for_file_to_delete=related_files.find(file=>file.display_name===display_name_to_delete)?.resource_type;
   related_files=related_files.filter(file=>file.display_name!== display_name_to_delete);
   try{
-    await cloudinary.uploader.destroy(display_name_to_delete,(error,result)=>{
+    await cloudinary.uploader.destroy(display_name_to_delete,{resource_type:resource_type_for_file_to_delete},(error,result)=>{
       if(error) throw new Error('Error deleting item from cloudinary:',error);
       if(from_edit){
         req.related_files=related_files;
