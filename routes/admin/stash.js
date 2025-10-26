@@ -15,7 +15,9 @@ router.post('/api/admin/stash',deleteCloudinaryCoversArray,async (req,res)=>{
       return res.status(200).send({success:true,stash_id:updatedStash._id});
     }else{
       const id=body.article_id?new Types.ObjectId(`${body.article_id}`):null;
-      const newStash=body.article_id?new Stash({...body,article_id:undefined,from_article:id}):new Stash(body);
+      //this is where we need to create a copy of ALL the related files and cover using random string at the end of the new display_name
+      //As the body already contains the related files and the cover, the data that'll be used to create the new Stash will take the copied values
+      // const newStash=body.article_id?new Stash({...body,article_id:undefined,from_article:id, relatedFiles:[],cover:{link:}}):new Stash(body);
       const savedStash=await newStash.save();
       if(!savedStash) throw new Error('Error occured when creating a new stash');
       return res.status(201).send({success:true, stash_id:savedStash._id});

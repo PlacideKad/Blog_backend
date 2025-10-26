@@ -45,22 +45,36 @@ export const deleteCloudinaryCoversArray=async(req,res,next)=>{
 
 export const deleteAttachedFile=async (req,res,next)=>{
   // This middleware deletes one attached file when the user clicks on the x
-  const {display_name_to_delete , from_edit}=req.body;
+  const {display_name_to_delete , from_edit , file_to_delete}=req.body;
   let {related_files}=req.body;
-  const resource_type_for_file_to_delete=related_files.find(file=>file.display_name===display_name_to_delete)?.resource_type;
-  related_files=related_files.filter(file=>file.display_name!== display_name_to_delete);
-  try{
-    await cloudinary.uploader.destroy(display_name_to_delete,{resource_type:resource_type_for_file_to_delete},(error,result)=>{
+  //so we can pass straight away the file we need to delete instead of passing a whole array of files
+  if(file_to_delete){
+    try{
+    await cloudinary.uploader.destroy(file_to_delete.display_name,{resource_type:file_to_delete.resource_type},(error,result)=>{
       if(error) throw new Error('Error deleting item from cloudinary:',error);
-      if(from_edit){
-        req.related_files=related_files;
-        next();
-      }else res.status(200).send({success:true,data:{related_files}});//that data will be usefull for the create article page. resJson.data.related_files
+      res.status(200).send({success:true});
     });
-
-  }catch(err){
-    console.log(err);
-    return res.status(500).send({success:false, message:err});
+    }catch(err){
+      res.status(500).send({success:false, message:err});
+    }
+  }else{
+    const resource_type_for_file_to_delete=related_files.find(file=>file.display_name===display_name_to_delete)?.resource_type;
+    related_files=related_files.filter(file=>file.display_name!== display_name_to_delete);
+    try{
+      await cloudinary.uploader.destroy(display_name_to_delete,{resource_type:resource_type_for_file_to_delete},(error,result)=>{
+        if(error) throw new Error('Error deleting item from cloudinary:',error);
+        if(from_edit){
+          req.related_files=related_files;
+          next();
+        }else res.status(200).send({success:true,data:{related_files}});//that data will be usefull for the create article page. resJson.data.related_files
+      });
+      console.log(req.body);
+      res.status(200).send({success:true});
+  
+    }catch(err){
+      console.log(err);
+      return res.status(500).send({success:false, message:err});
+    }
   }
 }
 export const deleteRelatedFiles=async(req,res,next)=>{
