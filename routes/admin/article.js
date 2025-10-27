@@ -16,10 +16,10 @@ router.post('/api/admin/article',async (req,res, next)=>{
       if(!updatedStash) throw new Error('Error while updating the stashed work');
       const deletedStash= await Stash.findByIdAndDelete(id);
       if(!deletedStash) throw new Error('Error while deleting the stashed work');
-      req.coverLinkToDelete=deletedStash?.cover?.link;
-      req.relatedFilesToDelete=deletedStash?.related_files;
       if(deletedStash.from_article){
         const updatedArticle=await Article.findByIdAndUpdate(deletedStash.from_article,{title:deletedStash.title,summary:deletedStash.summary,content:deletedStash.content,related_files:deletedStash.related_files,cover:deletedStash.cover},{runValidators:true});
+        req.coverLinkToDelete=updatedArticle?.cover?.link;
+        req.relatedFilesToDelete=updatedArticle?.related_files;
         if(!updatedArticle) throw new Error('Error while updating an already existing article from stash');
         return next();
       }
