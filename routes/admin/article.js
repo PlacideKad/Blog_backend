@@ -7,30 +7,33 @@ const router=Router();
 
 // Penser a ajouter un middleware de validation
 
-router.post('/api/admin/article',async (req,res)=>{
+router.post('/api/admin/article',async (req,res, next)=>{
   try{
     const {body}=req;
     if(body.stash_id){
       const id=new Types.ObjectId(`${body.stash_id}`);
-      const updatedStash=await Stash.findByIdAndUpdate(id,{...body,stash_id:undefined},{runValidators:true});
+      const updatedStash=await Stash.findByIdAndUpdate(id,{...body,stash_id:undefined},{runValidators:true,new:true});
       if(!updatedStash) throw new Error('Error while updating the stashed work');
       const deletedStash= await Stash.findByIdAndDelete(id);
       if(!deletedStash) throw new Error('Error while deleting the stashed work');
+      req.coverLinkToDelete=deletedStash?.cover?.link;
+      req.relatedFilesToDelete=deletedStash?.related_files;
       if(deletedStash.from_article){
         const updatedArticle=await Article.findByIdAndUpdate(deletedStash.from_article,{title:deletedStash.title,summary:deletedStash.summary,content:deletedStash.content,related_files:deletedStash.related_files,cover:deletedStash.cover},{runValidators:true});
         if(!updatedArticle) throw new Error('Error while updating an already existing article from stash');
-        return res.status(200).send({success:true});
+        return next();
       }
     }
     const newArticle=new Article({...body,stash_id:undefined});
     const savedArticle= await newArticle.save();
     if(!savedArticle) throw new Error('Error while creating a new article ') ;
-    return res.status(201).send({success:true});
+    
+    body.stash_id?next():res.status(201).send({success:true});
   }catch(err){
     console.log(err);
-    return res.status(400).send({message:err})
+    return res.status(400).send({auccess:false,message:err})
   }
-});
+},deleteRelatedFiles,deleteCloudinaryCover);
 
 router.post('/api/admin/article/update',async (req,res , next)=>{
   const {body}=req;

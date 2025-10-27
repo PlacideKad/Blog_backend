@@ -81,7 +81,7 @@ export const deleteRelatedFiles=async(req,res,next)=>{
   // this middleware deletes all the related files of an article/stash when it is deleted
   const {relatedFilesToDelete}=req;
   try{
-    if(relatedFilesToDelete.length>0){
+    if(relatedFilesToDelete?.length>0){
       for(let file of relatedFilesToDelete){
         await cloudinary.uploader.destroy(file?.display_name,(err,result)=>{
           if(err) throw new Error('Error occured when deleting a file from Cloudinary:',err);

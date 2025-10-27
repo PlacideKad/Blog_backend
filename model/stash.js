@@ -24,7 +24,8 @@ const stashSchema=new Schema({
       title:String,
       file:linkSchema,
       display_name:String,
-      format:String
+      format:String,
+      resource_type:String
     }],
     default:[]
   },
