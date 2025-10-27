@@ -2,12 +2,12 @@ import Router from 'express';
 import { Article } from '../../model/article.js';
 import { Stash } from '../../model/stash.js';
 import { Types } from 'mongoose';
-import { deleteCloudinaryCover, deleteComments , deleteRelatedFiles} from '../../middleware/deleteUselessData.js';
+import { deleteCloudinaryCover, deleteComments , deleteRelatedFiles, deleteCloudinaryCoversArray} from '../../middleware/deleteUselessData.js';
 const router=Router();
 
 // Penser a ajouter un middleware de validation
 
-router.post('/api/admin/article',async (req,res, next)=>{
+router.post('/api/admin/article',deleteCloudinaryCoversArray,async (req,res, next)=>{
   try{
     const {body}=req;
     if(body.stash_id){
@@ -35,7 +35,7 @@ router.post('/api/admin/article',async (req,res, next)=>{
   }
 },deleteRelatedFiles,deleteCloudinaryCover);
 
-router.post('/api/admin/article/update',async (req,res , next)=>{
+router.post('/api/admin/article/update',deleteCloudinaryCoversArray,async (req,res , next)=>{
   const {body}=req;
   const id=new Types.ObjectId(`${body.article_id}`);
   try{
