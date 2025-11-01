@@ -28,7 +28,8 @@ router.post('/api/admin/article',deleteCloudinaryCoversArray,async (req,res, nex
     const savedArticle= await newArticle.save();
     if(!savedArticle) throw new Error('Error while creating a new article ') ;
     
-    body.stash_id?next():res.status(201).send({success:true});
+    // body.stash_id?next():res.status(201).send({success:true});
+    return res.status(201).send({success:true});
   }catch(err){
     console.log(err);
     return res.status(400).send({auccess:false,message:err})

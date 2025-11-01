@@ -32,18 +32,20 @@ router.post('/api/admin/stash',deleteCloudinaryCoversArray,async (req,res)=>{
       const id=body.article_id?new Types.ObjectId(`${body.article_id}`):null;
       //this is where we need to create a copy of ALL the related files and cover using random string at the end of the new display_name
       //As the body already contains the related files and the cover, the data that'll be used to create the new Stash will take the copied values
-      let newRelatedFiles=[];
-      let newCoverLink=null;
-      if(body.related_files && body.related_files.length>0){
-        for(const file of body.related_files){
-          const newDisplayName=await copyCloudinaryItem(file.display_name);
-          if(newDisplayName) newRelatedFiles.push({...file,display_name:newDisplayName,file:{link:getCloudinaryLinkFromPublicId(newDisplayName)}});
+      if(id){
+        let newRelatedFiles=[];
+        let newCoverLink=null;
+        if(body.related_files && body.related_files.length>0){
+          for(const file of body.related_files){
+            const newDisplayName=await copyCloudinaryItem(file.display_name);
+            if(newDisplayName) newRelatedFiles.push({...file,display_name:newDisplayName,file:{link:getCloudinaryLinkFromPublicId(newDisplayName)}});
+          }
         }
-      }
-      if(body.cover && body.cover.link && body.cover.link!==process.env.DEFAULT_STASH_LINK & body.cover.link!==process.env.DEFAULT_PUBLISHED_LINK){
-        const publicId=body.cover.link.split('/').pop();
-        const newCoverPublicId=await copyCloudinaryItem(publicId);
-        newCoverLink=newCoverPublicId?getCloudinaryLinkFromPublicId(newCoverPublicId):null;
+        if(body.cover && body.cover.link && body.cover.link!==process.env.DEFAULT_STASH_LINK & body.cover.link!==process.env.DEFAULT_PUBLISHED_LINK){
+          const publicId=body.cover.link.split('/').pop();
+          const newCoverPublicId=await copyCloudinaryItem(publicId);
+          newCoverLink=newCoverPublicId?getCloudinaryLinkFromPublicId(newCoverPublicId):null;
+        }
       }
       const newStash=body.article_id?new Stash({...body,article_id:undefined,from_article:id, relatedFiles:newRelatedFiles,cover:{link:newCoverLink}}):new Stash(body);
       const savedStash=await newStash.save();
