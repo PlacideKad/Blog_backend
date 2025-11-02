@@ -45,7 +45,11 @@ const userSchema=new Schema({
   },
   blocked:{
     type:Boolean,
-    default:false,
+    default:false
+  },
+  isAdmin:{
+    type:Boolean,
+    default:false
   }
 },{strict:true,timestamps:true});
 
