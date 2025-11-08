@@ -24,7 +24,7 @@ const app=express();
 app.use(express.json());
 app.use(cookieParser());
 
-const allowed_origins=['http://localhost:5173'];
+const allowed_origins=[process.env.FRONTEND_HOME_DEV,process.env.FRONTEND_HOME_PROD];
 
 app.use(cors({
   origin:(origin,callback)=>{
@@ -34,7 +34,7 @@ app.use(cors({
   credentials:true
 }));
 
-mongoose.connect('mongodb://localhost:27017/blog_backend')
+mongoose.connect(process.env.MONGODB_URL_DEV)
 .then(()=>console.log('Sucessfully connected to the database'))
 .catch(err=>{
   console.log('An error occured when connecting to the database',err)
@@ -58,7 +58,7 @@ passport.deserializeUser((user,done)=>{
 passport.use(new GoogleStrategy({
   clientID:process.env.GOOGLE_CLIENT_ID,
   clientSecret:process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL:process.env.CALLBACK_URL
+  callbackURL:process.env.CALLBACK_URL_DEV
 },(accessToken,refreshToken,profile,done)=>{
   return done(null,profile);
 }));
