@@ -1,10 +1,7 @@
 import express from 'express';
 import session from 'express-session';
-import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import authenticationRoute from './routes/auth.js';
-import profileRoute from './routes/profile.js';
-import redirectRoute from './routes/redirect.js';
 import userRoute from './routes/user.js';
 import adminArticleRoute from './routes/admin/article.js';
 import articleRoute from './routes/article.js';
@@ -45,24 +42,6 @@ app.use(session({
   resave:false
 }));
 
-app.use(passport.initialize());
-app.use(passport.session());
-
-passport.serializeUser((user,done)=>{
-  done(null,user);
-});
-passport.deserializeUser((user,done)=>{
-  done(null,user);
-});
-
-passport.use(new GoogleStrategy({
-  clientID:process.env.GOOGLE_CLIENT_ID,
-  clientSecret:process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL:process.env.CALLBACK_URL_DEV
-},(accessToken,refreshToken,profile,done)=>{
-  return done(null,profile);
-}));
-
 // Cloudinary config
 
 cloudinary.config({
@@ -72,8 +51,6 @@ cloudinary.config({
 });
 
 app.use(authenticationRoute);
-app.use(profileRoute);
-app.use(redirectRoute);
 app.use(userRoute);
 app.use(adminArticleRoute);
 app.use(articleRoute);
