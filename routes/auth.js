@@ -3,30 +3,51 @@
 // '/api/auth/google'
 // '/api/auth/google/callback'
 
-
-// const createUser=async (req,res,next)=>{
-//   try{
-//     if(!req.isAuthenticated()) return res.redirect('/api/redirect');
-//     const user=req.user;
-//     const existingUser=await User.findOne({id:user.id},{name:1,},{lean:true});
-//     if(!existingUser){
-//       const adminsList=[process.env.ADMIN_1_EMAIL,process.env.ADMIN_2_EMAIL];
-//       const newUser=new User({id:user.id,isAdmin:(adminsList.includes(user.email)),email:user.email,given_name:user.given_name,family_name:user.family_name,picture:'https://res.cloudinary.com/dmipesfyo/image/upload/c_fill,h_550,w_550/default_user_profile_picture'});
-//       await newUser.save();
-//     }
-//     next();
-//   }catch(err){
-//     console.log(err);
-//     res.sendStatus(400);
-//   }
-// }
+// router.post('/api/user',async (req,res)=>{
+//   const {id}=req.body;
+//   const foundUser=await User.findOne({id:id});
+//   if(!foundUser) return res.status(404).send({message:'No user found'});
+//   return res.status(200).send(foundUser);
+// });
 
 
 import { Router } from "express";
+import { User } from "../model/user.js";
+import { getHashedPassword } from "../utils/hasher.js";
+
 const router= Router();
 
-router.post('api/authenticate/login',async (req,res)=>{
-  return res.status(200).send({message:"done"});
+//login signin and logout
+
+router.post('/api/authenticate/signin',async (req,res)=>{
+  let {body}=req;
+  try{
+    if(!body.password) return res.status(400).send({success:false,errorHandled:true,message:"Password fied empty cannot be processed"})
+    body.password=await getHashedPassword(body?.password);
+    const existingUser=await User.findOne({email:body.email},{_id:1},{lean:true});
+    if(existingUser) return res.send({success:false,errorHandled:true,message:`A user with the email ${body.email} already exists`});
+
+    const adminsList=[process.env.ADMIN_1_EMAIL,process.env.ADMIN_2_EMAIL];
+    const newUser=new User({
+      ...body,
+      isAdmin:(adminsList.includes(body.email)),
+      picture:'https://res.cloudinary.com/dmipesfyo/image/upload/c_fill,h_550,w_550/default_user_profile_picture',
+    });
+    const savedUser=await newUser.save();
+    if(!savedUser) return res.status(500).send({success:false,errorHandled:true,message:'Unexpected error. User not created'});
+    return res.send({success:true,savedUser});
+  }catch(err){
+    console.log(err);
+    return res.sendStatus(500);
+  }
 });
+
+// router.get('/api/logout',(req,res)=>{
+//   // update if necessary
+//   req.logout(()=>{
+//     res.clearCookie('auth_token');
+//     res.send({disconnected:true});
+//   });
+// })
 
 export default router;

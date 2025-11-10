@@ -38,11 +38,6 @@ const userSchema=new Schema({
       message:'The given string is not a valid url to the profile picture'
     }
   },
-  id:{
-    type:String,
-    required:true,
-    unique:true,
-  },
   blocked:{
     type:Boolean,
     default:false
@@ -50,6 +45,10 @@ const userSchema=new Schema({
   isAdmin:{
     type:Boolean,
     default:false
+  },
+  password:{
+    type:String,
+    required:true
   }
 },{strict:true,timestamps:true});
 

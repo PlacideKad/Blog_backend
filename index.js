@@ -12,9 +12,9 @@ import removeCloudinaryRoute from './routes/cloudinaryRequests.js';
 import removeFiles from './routes/admin/removeAttachedFiles.js';
 import {v2 as cloudinary} from 'cloudinary';
 import mongoose from 'mongoose';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
 import { config } from "dotenv";
 import cors from 'cors';
+import MongoStore from 'connect-mongo';
 
 config();
 const app=express();
@@ -36,10 +36,21 @@ mongoose.connect(process.env.MONGODB_URL_DEV)
 .catch(err=>{
   console.log('An error occured when connecting to the database',err)
 });
+
 app.use(session({
   secret:process.env.SESSION_SECRET,
   saveUninitialized:true,
-  resave:false
+  resave:false,
+  store:MongoStore.create({
+    mongoUrl:process.env.MONGODB_URL_DEV,
+    collectionName:'sessions'
+  }),
+  cookie:{
+    maxAge:1000*60*60,
+    httpOnly:true,
+    secure:false,//true en prod
+    sameSite:'lax'
+  }
 }));
 
 // Cloudinary config
