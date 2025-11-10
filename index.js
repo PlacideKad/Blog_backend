@@ -34,7 +34,7 @@ app.use(cors({
   credentials:true
 }));
 
-mongoose.connect(process.env.MONGODB_URL_PROD)
+mongoose.connect(process.env.MONGODB_URL_DEV)
 .then(()=>console.log('Sucessfully connected to the database'))
 .catch(err=>{
   console.log('An error occured when connecting to the database',err)
@@ -58,7 +58,7 @@ passport.deserializeUser((user,done)=>{
 passport.use(new GoogleStrategy({
   clientID:process.env.GOOGLE_CLIENT_ID,
   clientSecret:process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL:process.env.CALLBACK_URL_PROD
+  callbackURL:process.env.CALLBACK_URL_DEV
 },(accessToken,refreshToken,profile,done)=>{
   return done(null,profile);
 }));
