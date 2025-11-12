@@ -1,31 +1,16 @@
-
-//old routes
-// '/api/auth/google'
-// '/api/auth/google/callback'
-
-// router.post('/api/user',async (req,res)=>{
-//   const {id}=req.body;
-//   const foundUser=await User.findOne({id:id});
-//   if(!foundUser) return res.status(404).send({message:'No user found'});
-//   return res.status(200).send(foundUser);
-// });
-
-
 import { Router } from "express";
 import { User } from "../model/user.js";
-import { getHashedPassword } from "../utils/hasher.js";
+import { getHashedPassword , checkPassword} from "../utils/hasher.js";
 
 const router= Router();
 
-//login signin and logout
-
-router.post('/api/authenticate/signin',async (req,res)=>{
+router.post('/api/authenticate/signup',async (req,res)=>{
   let {body}=req;
   try{
     if(!body.password) return res.status(400).send({success:false,errorHandled:true,message:"Password fied empty cannot be processed"})
     body.password=await getHashedPassword(body?.password);
     const existingUser=await User.findOne({email:body.email},{_id:1},{lean:true});
-    if(existingUser) return res.send({success:false,errorHandled:true,message:`A user with the email ${body.email} already exists`});
+    if(existingUser) return res.send({success:false,errorHandled:true,message:`A user with the email ${body.email} already exists. Please, signin to your account.`});
 
     const adminsList=[process.env.ADMIN_1_EMAIL,process.env.ADMIN_2_EMAIL];
     const newUser=new User({
@@ -38,16 +23,30 @@ router.post('/api/authenticate/signin',async (req,res)=>{
     return res.send({success:true,savedUser});
   }catch(err){
     console.log(err);
-    return res.sendStatus(500);
+    return res.status(500).send({success:false, errorHandled:false, message:err});
   }
 });
 
-// router.get('/api/logout',(req,res)=>{
-//   // update if necessary
-//   req.logout(()=>{
-//     res.clearCookie('auth_token');
-//     res.send({disconnected:true});
-//   });
-// })
+router.post("/api/authenticate/signin",async (req,res)=>{
+  try{
+    const {email, password}=req.body;
+    if(!(email && password)) return res.status(400).send({success:false, errorHandled:true, message:"Missing email or password. Check yout input, then submit again"});
+    const foundUser=await User.findOne({email:email},{},{lean:true});
+    if(!foundUser) return res.status(400).send({success:false, errorHandled:true, message:`No user with the email ${email} found. Please, sign up first.`});
+    if(!checkPassword(password,foundUser.password)) return res.status(401).send({success:false, errorHandled:true, message:"Email or password might be incorrect. Please check your entries"});
+    return res.status(200).send({success:true, user:{...foundUser, password:undefined}});
+  }catch(err){
+    console.log(err);
+    return res.status(500).send({success:false, errorHandled:false, message:"Unexped error occured"});
+  }
+})
+
+router.get('/api/logout',(req,res)=>{
+  req.session.destroy(err=>{
+    if(err) return res.status(500).send({success:false, errorHandled:true, message:"Failed to disconnect you"});
+    res.clearCookie('connect.sid');
+    return res.send({success:true});
+  })
+})
 
 export default router;
