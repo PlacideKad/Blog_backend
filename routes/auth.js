@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { User } from "../model/user.js";
 import { getHashedPassword , checkPassword} from "../utils/hasher.js";
+import { disconnect } from "mongoose";
 
 const router= Router();
 
@@ -20,7 +21,7 @@ router.post('/api/authenticate/signup',async (req,res)=>{
     });
     const savedUser=await newUser.save();
     if(!savedUser) return res.status(500).send({success:false,errorHandled:true,message:'Unexpected error. User not created'});
-    return res.send({success:true,savedUser});
+    return res.send({success:true,user:savedUser});
   }catch(err){
     console.log(err);
     return res.status(500).send({success:false, errorHandled:false, message:err});
@@ -34,7 +35,7 @@ router.post("/api/authenticate/signin",async (req,res)=>{
     const foundUser=await User.findOne({email:email},{},{lean:true});
     if(!foundUser) return res.status(400).send({success:false, errorHandled:true, message:`No user with the email ${email} found. Please, sign up first.`});
     if(!checkPassword(password,foundUser.password)) return res.status(401).send({success:false, errorHandled:true, message:"Email or password might be incorrect. Please check your entries"});
-    return res.status(200).send({success:true, user:{...foundUser, password:undefined}});
+    return res.status(200).send({success:true, user:foundUser});
   }catch(err){
     console.log(err);
     return res.status(500).send({success:false, errorHandled:false, message:"Unexped error occured"});
@@ -45,7 +46,7 @@ router.get('/api/logout',(req,res)=>{
   req.session.destroy(err=>{
     if(err) return res.status(500).send({success:false, errorHandled:true, message:"Failed to disconnect you"});
     res.clearCookie('connect.sid');
-    return res.send({success:true});
+    return res.send({success:true, disconnected:true});
   })
 })
 
