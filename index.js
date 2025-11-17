@@ -31,7 +31,7 @@ app.use(cors({
   credentials:true
 }));
 
-mongoose.connect(process.env.MONGODB_URL_DEV)
+mongoose.connect(process.env.MONGODB_URL_PROD)
 .then(()=>console.log('Sucessfully connected to the database'))
 .catch(err=>{
   console.log('An error occured when connecting to the database',err)
@@ -42,13 +42,13 @@ app.use(session({
   saveUninitialized:true,
   resave:false,
   store:MongoStore.create({
-    mongoUrl:process.env.MONGODB_URL_DEV,
+    mongoUrl:process.env.MONGODB_URL_PROD,
     collectionName:'sessions'
   }),
   cookie:{
     maxAge:1000*60*60,
     httpOnly:true,
-    secure:false,//true en prod
+    secure:true,//true en prod
     sameSite:'lax'
   }
 }));
