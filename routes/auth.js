@@ -22,7 +22,7 @@ router.post('/api/authenticate/signup',async (req,res)=>{
     const savedUser=await newUser.save();
     if(!savedUser) return res.status(500).send({success:false,errorHandled:true,message:'Unexpected error. User not created'});
     req.session.userId=savedUser._id;
-    res.session.save(err=>{
+    req.session.save(err=>{
       if(err) throw new Error("Not signed in");
       return res.send({success:true,user:savedUser});
     })
