@@ -17,7 +17,7 @@ router.post('/api/authenticate/signup',async (req,res)=>{
     const newUser=new User({
       ...body,
       isAdmin:(adminsList.includes(body.email)),
-      picture:'https://res.cloudinary.com/dmipesfyo/image/upload/c_fill,h_550,w_550/default_user_profile_picture',
+      picture:process.env.DEFAULT_PROFILE_PICTURE,
     });
     const savedUser=await newUser.save();
     if(!savedUser) return res.status(500).send({success:false,errorHandled:true,message:'Unexpected error. User not created'});
