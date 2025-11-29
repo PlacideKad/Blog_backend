@@ -53,6 +53,10 @@ app.use(session({
   }
 }));
 
+app.get('/api/startserver',(req,res)=>{
+  res.status(200).send({success:true});
+});
+
 // Cloudinary config
 
 cloudinary.config({
