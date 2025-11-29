@@ -3,7 +3,16 @@ import { Types } from "mongoose";
 import { Comment } from "../model/comment.js";
 
 const router=Router();
-// Add an authentication middleware
+
+router.post('/api/comment/edit/:id',async (req,res)=>{
+    const {content,updateComment}=req.body;
+    if(!updateComment) res.sendStatus(400);
+    const comment_id=new Types.ObjectId(`${req.params.id}`);
+    const updatedComment= await Comment.findByIdAndUpdate(comment_id,{$set:{content}},{new:true});
+    if(!updatedComment) res.sendStatus(500);
+    res.sendStatus(200);
+});
+
 router.post('/api/comment',async (req,res)=>{
   try{
     const {content,author_id,parent_id,parentModel}=req.body;
