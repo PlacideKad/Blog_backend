@@ -75,7 +75,7 @@ router.post('/api/articles/:id',async (req,res)=>{
     const comments_=await Comment.find({$and:[
       {parent:id},
       {parentModel:'article'}
-    ]},{content:1,author:1,createdAt:1,updatedAt:1},{lean:true});
+    ]},{},{lean:true});
     let comments=[];
     await(async()=>{
       for(let comment of comments_){
@@ -110,4 +110,27 @@ router.post('/api/articles/:id/like',async (req,res)=>{
     res.sendStatus(400);
   }
 });
+
+router.post('/api/comments/:id',async (req,res)=>{
+  try{
+    const user_id=new Types.ObjectId(`${req.body.id}`);
+    const comment_id=new Types.ObjectId(`${req.params.id}`);
+    const {likes}=await Comment.findById(comment_id,{likes:1,_id:0},{lean:true});
+    let updatedComment=null;
+
+    if(likes?.some(id=>id.equals(user_id))){
+      updatedComment=await Comment.findByIdAndUpdate(comment_id,{$pull:{likes:user_id}},{runValidators:true,new:true});
+      if(!updatedComment) throw new Error('Error occured when liking a comment ');
+      res.status(200).send({userLiked:false,likes:updatedComment.likes});
+    }else{
+      updatedComment=await Comment.findByIdAndUpdate(comment_id,{$push:{likes:user_id}},{runValidators:true,new:true});
+      if(!updatedComment) throw new Error('Error occured when liking a comment');
+      res.status(201).send({userLiked:true,likes:updatedComment.likes});
+    }
+   
+  }catch(err){
+    console.log(err);
+    res.sendStatus(500);
+  }
+})
 export default router;

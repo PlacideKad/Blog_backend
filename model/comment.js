@@ -23,7 +23,13 @@ export const commentSchema=new Schema({
     type:String,
     required:true,
     enum:['article','comment']
-  }
+  },
+  likes:{
+    type:[{
+      type:Schema.Types.ObjectId,
+      refer:'user'
+    }],
+  },
 },{strict:true,timestamps:true});
 
 export const Comment=model('comment',commentSchema);
