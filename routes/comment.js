@@ -29,4 +29,16 @@ router.post('/api/comment',async (req,res)=>{
   }
 });
 
+router.delete('/api/comment/delete/:id',async (req,res)=>{
+  try{
+    const comment_id=new Types.ObjectId(`${req.params.id}`);
+    const deletedComment=await Comment.findByIdAndDelete(comment_id);
+    if(!deletedComment) return res.sendStatus(400);
+    return res.status(200).send({success:true});
+  }catch(err){
+    console.log(err);
+    res.sendStatus(500);
+  }
+
+});
 export default router
